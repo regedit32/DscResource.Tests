@@ -54,14 +54,8 @@ This branch is used by DSC Resource Kit modules for running common tests.
 - [Documentation Helper Module](#documentation-helper-module)
 - [Run integration tests in order](#run-integration-tests-in-order)
   - [Run tests in a Docker Windows container](#run-tests-in-a-docker-windows-container)
-    - [Named attribute argument](#named-attribute-argument)
-    - [Example](#example)
-    - [Artifacts when running tests in a container](#artifacts-when-running-tests-in-a-container)
 - [Deploy](#deploy)
   - [Publish examples to PowerShell Gallery](#publish-examples-to-powershell-gallery)
-    - [Requirements/dependencies for publishing to PowerShell Gallery](#requirementsdependencies-for-publishing-to-powershell-gallery)
-    - [PowerShell Gallery API key](#powershell-gallery-api-key)
-    - [Contributor responsibilities](#contributor-responsibilities)
 - [Versions](#versions)
   - [Unreleased](#unreleased)
   - [0.2.0.0](#0200)
@@ -199,7 +193,7 @@ function Get-TargetResource
 }
 ```
 
-To suppress the **Measure-ParameterBlockParameterAttribute** in this example, this can be dome by using the SuppressMessageAttribute like this:
+To suppress the **Measure-ParameterBlockParameterAttribute** in this example, this can be done by using the SuppressMessageAttribute like this:
 
 ```powershell
 function Get-TargetResource
