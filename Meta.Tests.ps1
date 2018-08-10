@@ -434,6 +434,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                         foreach ($errorPssaRuleOutput in $errorPssaRulesOutput)
                         {
+                            Write-Warning -Message "PSSA Rule Name: $($errorPssaRuleOutput.RuleName) "
                             Write-Warning -Message "$($errorPssaRuleOutput.ScriptName) (Line $($errorPssaRuleOutput.Line)): $($errorPssaRuleOutput.Message)"
                         }
 
@@ -453,6 +454,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                         foreach ($requiredPssaRuleOutput in $requiredPssaRulesOutput)
                         {
+                            Write-Warning -Message "PSSA Rule Name: $($requiredPssaRuleOutput.RuleName) "
                             Write-Warning -Message "$($requiredPssaRuleOutput.ScriptName) (Line $($requiredPssaRuleOutput.Line)): $($requiredPssaRuleOutput.Message)"
                         }
 
@@ -479,6 +481,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                         foreach ($flaggedPssaRuleOutput in $flaggedPssaRulesOutput)
                         {
+                            Write-Warning -Message "PSSA Rule Name: $($flaggedPssaRuleOutput.RuleName) "
                             Write-Warning -Message "$($flaggedPssaRuleOutput.ScriptName) (Line $($flaggedPssaRuleOutput.Line)): $($flaggedPssaRuleOutput.Message)"
                         }
 
@@ -507,6 +510,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                         foreach ($newErrorPssaRuleOutput in $newErrorPssaRulesOutput)
                         {
+                            Write-Warning -Message "PSSA Rule Name: $($newErrorPssaRuleOutput.RuleName) "
                             Write-Warning -Message "$($newErrorPssaRuleOutput.ScriptName) (Line $($newErrorPssaRuleOutput.Line)): $($newErrorPssaRuleOutput.Message)"
                         }
 
@@ -555,6 +559,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                         foreach ($customPssaRuleOutput in $customPssaRulesOutput)
                         {
+                            Write-Warning -Message "Custom PSSA Rule Name: $($customPssaRuleOutput.RuleName) "
                             Write-Warning -Message "$($customPssaRuleOutput.ScriptName) (Line $($customPssaRuleOutput.Line)): $($customPssaRuleOutput.Message)"
                         }
 

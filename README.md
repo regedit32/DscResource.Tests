@@ -26,6 +26,56 @@ This is the development branch to which contributions should be proposed by cont
 as pull requests.
 This branch is used by DSC Resource Kit modules for running common tests.
 
+## Table of Contents
+<!-- TOC -->
+
+- [DscResource.Tests](#dscresourcetests)
+    - [Branches](#branches)
+        - [master](#master)
+        - [dev](#dev)
+    - [Table of Contents](#table-of-contents)
+    - [DSC Resource Common Meta Tests](#dsc-resource-common-meta-tests)
+        - [Goals](#goals)
+        - [Git and Unicode](#git-and-unicode)
+        - [Markdown Testing](#markdown-testing)
+        - [Example Testing](#example-testing)
+        - [PSScriptAnalyzer Rules](#psscriptanalyzer-rules)
+    - [MetaFixers Module](#metafixers-module)
+    - [TestHelper Module](#testhelper-module)
+    - [Templates for Creating Tests](#templates-for-creating-tests)
+    - [Example Test Usage](#example-test-usage)
+    - [Example Usage of DSCResource.Tests in AppVeyor.yml](#example-usage-of-dscresourcetests-in-appveyoryml)
+    - [AppVeyor Module](#appveyor-module)
+        - [Phased Meta test Opt-In](#phased-meta-test-opt-in)
+        - [Using AppVeyor.psm1 with the default shared model](#using-appveyorpsm1-with-the-default-shared-model)
+        - [Using AppVeyor.psm1 with harness model](#using-appveyorpsm1-with-harness-model)
+    - [Encrypt Credentials in Integration Tests](#encrypt-credentials-in-integration-tests)
+    - [CodeCoverage reporting with CodeCov.io](#codecoverage-reporting-with-codecovio)
+        - [Ensure Code Coverage is enabled](#ensure-code-coverage-is-enabled)
+            - [Repository using `-Type 'Default'` for `Invoke-AppveyorTestScriptTask`](#repository-using--type-default-for-invoke-appveyortestscripttask)
+            - [Repository using `-Type 'Harness'` for `Invoke-AppveyorTestScriptTask`](#repository-using--type-harness-for-invoke-appveyortestscripttask)
+        - [Enable reporting to CodeCove.io](#enable-reporting-to-codecoveio)
+        - [Configure CodeCov.io](#configure-codecovio)
+        - [Add the badge to the Readme](#add-the-badge-to-the-readme)
+    - [Documentation Helper Module](#documentation-helper-module)
+    - [Run integration tests in order](#run-integration-tests-in-order)
+        - [Run tests in a Docker Windows container](#run-tests-in-a-docker-windows-container)
+            - [Named attribute argument](#named-attribute-argument)
+            - [Example](#example)
+            - [Artifacts when running tests in a container](#artifacts-when-running-tests-in-a-container)
+    - [Deploy](#deploy)
+        - [Publish examples to PowerShell Gallery](#publish-examples-to-powershell-gallery)
+            - [Requirements/dependencies for publishing to PowerShell Gallery](#requirementsdependencies-for-publishing-to-powershell-gallery)
+            - [PowerShell Gallery API key](#powershell-gallery-api-key)
+            - [Contributor responsibilities](#contributor-responsibilities)
+                - [Example of script metadata, #Requires statement and comment-based help](#example-of-script-metadata-requires-statement-and-comment-based-help)
+    - [Versions](#versions)
+        - [Unreleased](#unreleased)
+        - [0.2.0.0](#0200)
+        - [0.1.0.0](#0100)
+
+<!-- /TOC -->
+
 ## DSC Resource Common Meta Tests
 
 > Meta.Tests.ps1
@@ -129,6 +179,48 @@ An optional configuration data hash table can be added for any specific data tha
 needs to be provided to the example configuration. The configuration data hash table
 variable name must be `$ConfigurationData` for the test to pick it up. If no
 configuration block is provided a default configuration block is used.
+
+### PSScriptAnalyzer Rules
+
+The DSC Resource Common Meta Tests also contains tests for [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) (PSSA) rules.
+Along with the built-in PSSA rules, custom rules are tested. Those rules are defined and maintained in this repository in
+[DscResource.AnalyzerRules](https://github.com/PowerShell/DscResource.Tests/tree/dev/DscResource.AnalyzerRules).
+
+There will be cases where built-in and/or custom PSSA rules may need to be suppressed in scripts or functions.
+You can suppress a rule by decorating a script/function or script/function parameter with .NET's
+[SuppressMessageAttribute](https://msdn.microsoft.com/en-us/library/system.diagnostics.codeanalysis.suppressmessageattribute.aspx).
+
+When the *Common Tests - PS Script Analyzer on Resource Files* test fails on a PSSA rule, Meta.Tests will use `Write-Warning` to output
+Rule Name, Script Name, Line Number, and Rule Message.  When necessary, the rule name can be used to suppress the rule as needed.
+For example, the following code would cause the **Measure-ParameterBlockParameterAttribute** custom PSSA rule to fail:
+
+```powerShell
+function Get-TargetResource
+{
+    Param (
+        $ParameterName1,
+
+        [parameter()]
+        $ParameterName2
+    )
+}
+```
+
+To suppress the **Measure-ParameterBlockParameterAttribute** in this example, this can be dome by using the SuppressMessageAttribute like this:
+```powershell
+function Get-TargetResource
+{
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('DscResource.AnalyzerRules\Measure-ParameterBlockParameterAttribute','')]
+    Param (
+        $ParameterName1,
+
+        [parameter()]
+        $ParameterName2
+    )
+}
+```
+
+For further details and examples for suppressing PSSA rules, please see the [Suppressing Rules documentation](https://github.com/PowerShell/PSScriptAnalyzer#suppressing-rules).
 
 ## MetaFixers Module
 
@@ -649,6 +741,8 @@ Contributors that add or change an example to be published must make sure that
 
 ### Unreleased
 
+* Added Rule Name to PS Script Analyzer custom rules
+* Added PsScript Analyzer Rule Name to Write-Warning output in meta.tests
 * Extra whitespace trimmed from TestHelper.psm1 (feature of VS Code).
 * Removed code to Remove-Module from Initialize-TestEnvironment because not
   required: Import-Module -force should do the same thing.

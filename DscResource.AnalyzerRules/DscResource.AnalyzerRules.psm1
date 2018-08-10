@@ -6,12 +6,11 @@ Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath 'DscResource.Analy
 # Import Localized Data
 Import-LocalizedData -BindingVariable localizedData
 
-$script:moduleName = $MyInvocation.MyCommand.Name -replace '.psm1'
 $script:diagnosticRecordType = [Microsoft.Windows.PowerShell.ScriptAnalyzer.Generic.DiagnosticRecord]
 $script:diagnosticRecord = @{
     Message  = ''
     Extent   = $null
-    RuleName = $PSCmdlet.MyInvocation.InvocationName
+    RuleName = $null
     Severity = 'Warning'
 }
 
@@ -51,6 +50,7 @@ function Measure-ParameterBlockParameterAttribute
     try
     {
         $script:diagnosticRecord['Extent'] = $ParameterAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
         [System.Boolean] $inAClass = Test-IsInClass -Ast $ParameterAst
         
         <# 
@@ -63,23 +63,17 @@ function Measure-ParameterBlockParameterAttribute
             {
                 $script:diagnosticRecord['Message'] = $localizedData.ParameterBlockParameterAttributeMissing
 
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ParameterBlockParameterAttributeMissing"
-
                 $script:diagnosticRecord -as $script:diagnosticRecordType
             }
             elseif ($ParameterAst.Attributes[0].TypeName.FullName -ne 'parameter')
             {
                 $script:diagnosticRecord['Message'] = $localizedData.ParameterBlockParameterAttributeWrongPlace
 
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ParameterBlockParameterAttributeWrongPlace"
-
                 $script:diagnosticRecord -as $script:diagnosticRecordType
             }
             elseif ($ParameterAst.Attributes[0].TypeName.FullName -cne 'Parameter')
             {
                 $script:diagnosticRecord['Message'] = $localizedData.ParameterBlockParameterAttributeLowerCase
-
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ParameterBlockParameterAttributeLowerCase"
 
                 $script:diagnosticRecord -as $script:diagnosticRecordType
             }
@@ -125,6 +119,7 @@ function Measure-ParameterBlockMandatoryNamedArgument
 
     try
     {
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
         [System.Boolean] $inAClass = Test-IsInClass -Ast $NamedAttributeArgumentAst
 
         <# 
@@ -134,7 +129,7 @@ function Measure-ParameterBlockMandatoryNamedArgument
         if (!$inAClass)
         {
             if ($NamedAttributeArgumentAst.ArgumentName -eq 'Mandatory')
-            {    
+            {
                 $script:diagnosticRecord['Extent'] = $NamedAttributeArgumentAst.Extent
 
                 if ($NamedAttributeArgumentAst)
@@ -146,8 +141,6 @@ function Measure-ParameterBlockMandatoryNamedArgument
                         if ($value -eq $false)
                         {
                             $script:diagnosticRecord['Message'] = $localizedData.ParameterBlockNonMandatoryParameterMandatoryAttributeWrongFormat
-
-                            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ParameterBlockNonMandatoryParameterMandatoryAttributeWrongFormat"
 
                             $script:diagnosticRecord -as $script:diagnosticRecordType
                         }
@@ -168,8 +161,6 @@ function Measure-ParameterBlockMandatoryNamedArgument
                     if ($invalidFormat)
                     {
                         $script:diagnosticRecord['Message'] = $localizedData.ParameterBlockParameterMandatoryAttributeWrongFormat
-
-                        $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ParameterBlockParameterMandatoryAttributeWrongFormat"
 
                         $script:diagnosticRecord -as $script:diagnosticRecordType
                     }
@@ -218,6 +209,7 @@ function Measure-FunctionBlockBraces
     try
     {
         $script:diagnosticRecord['Extent'] = $FunctionDefinitionAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $FunctionDefinitionAst.Extent
@@ -226,21 +218,18 @@ function Measure-FunctionBlockBraces
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.FunctionOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\FunctionOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.FunctionOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\FunctionOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.FunctionOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\FunctionOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -285,6 +274,7 @@ function Measure-IfStatement
     try
     {
         $script:diagnosticRecord['Extent'] = $IfStatementAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $IfStatementAst.Extent
@@ -293,21 +283,18 @@ function Measure-IfStatement
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.IfStatementOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\IfStatementOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.IfStatementOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\IfStatementOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.IfStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\IfStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -352,6 +339,7 @@ function Measure-ForEachStatement
     try
     {
         $script:diagnosticRecord['Extent'] = $ForEachStatementAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $ForEachStatementAst.Extent
@@ -360,21 +348,18 @@ function Measure-ForEachStatement
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.ForEachStatementOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ForEachStatementOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.ForEachStatementOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ForEachStatementOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.ForEachStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ForEachStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -419,6 +404,7 @@ function Measure-DoUntilStatement
     try
     {
         $script:diagnosticRecord['Extent'] = $DoUntilStatementAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $DoUntilStatementAst.Extent
@@ -427,21 +413,18 @@ function Measure-DoUntilStatement
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.DoUntilStatementOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\DoUntilStatementOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.DoUntilStatementOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\DoUntilStatementOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.DoUntilStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\DoUntilStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -486,6 +469,7 @@ function Measure-DoWhileStatement
     try
     {
         $script:diagnosticRecord['Extent'] = $DoWhileStatementAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $DoWhileStatementAst.Extent
@@ -494,21 +478,18 @@ function Measure-DoWhileStatement
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.DoWhileStatementOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\DoWhileStatementOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.DoWhileStatementOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\DoWhileStatementOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.DoWhileStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\DoWhileStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -553,6 +534,7 @@ function Measure-WhileStatement
     try
     {
         $script:diagnosticRecord['Extent'] = $WhileStatementAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $WhileStatementAst.Extent
@@ -561,21 +543,18 @@ function Measure-WhileStatement
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.WhileStatementOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\WhileStatementOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.WhileStatementOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\WhileStatementOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.WhileStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\WhileStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -620,6 +599,7 @@ function Measure-ForStatement
     try
     {
         $script:diagnosticRecord['Extent'] = $ForStatementAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $ForStatementAst.Extent
@@ -628,21 +608,18 @@ function Measure-ForStatement
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.ForStatementOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ForStatementOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.ForStatementOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ForStatementOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.ForStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ForStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -687,6 +664,7 @@ function Measure-SwitchStatement
     try
     {
         $script:diagnosticRecord['Extent'] = $SwitchStatementAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $SwitchStatementAst.Extent
@@ -700,20 +678,17 @@ function Measure-SwitchStatement
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.SwitchStatementOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\SwitchStatementOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
         elseif (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.SwitchStatementOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\SwitchStatementOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.SwitchStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\SwitchStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -758,6 +733,7 @@ function Measure-TryStatement
     try
     {
         $script:diagnosticRecord['Extent'] = $TryStatementAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $TryStatementAst.Extent
@@ -766,21 +742,18 @@ function Measure-TryStatement
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.TryStatementOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\TryStatementOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.TryStatementOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\TryStatementOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.TryStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\TryStatementOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -825,6 +798,7 @@ function Measure-CatchClause
     try
     {
         $script:diagnosticRecord['Extent'] = $CatchClauseAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $CatchClauseAst.Extent
@@ -833,21 +807,18 @@ function Measure-CatchClause
         if (Test-StatementOpeningBraceOnSameLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.CatchClauseOpeningBraceNotOnSameLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\CatchClauseOpeningBraceNotOnSameLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         }
 
         if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.CatchClauseOpeningBraceShouldBeFollowedByNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\CatchClauseOpeningBraceShouldBeFollowedByNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
 
         if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
         {
             $script:diagnosticRecord['Message'] = $localizedData.CatchClauseOpeningBraceShouldBeFollowedByOnlyOneNewLine
-            $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\CatchClauseOpeningBraceShouldBeFollowedByOnlyOneNewLine"
             $script:diagnosticRecord -as $diagnosticRecordType
         } # if
     }
@@ -891,6 +862,7 @@ function Measure-TypeDefinition
     try
     {
         $script:diagnosticRecord['Extent'] = $TypeDefinitionAst.Extent
+        $script:diagnosticRecord['RuleName'] = $PSCmdlet.MyInvocation.InvocationName
 
         $testParameters = @{
             StatementBlock = $TypeDefinitionAst.Extent
@@ -901,21 +873,18 @@ function Measure-TypeDefinition
             if (Test-StatementOpeningBraceOnSameLine @testParameters)
             {
                 $script:diagnosticRecord['Message'] = $localizedData.EnumOpeningBraceNotOnSameLine
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\EnumOpeningBraceNotOnSameLine"
                 $script:diagnosticRecord -as $diagnosticRecordType
             } # if
 
             if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
             {
                 $script:diagnosticRecord['Message'] = $localizedData.EnumOpeningBraceShouldBeFollowedByNewLine
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\EnumOpeningBraceShouldBeFollowedByNewLine"
                 $script:diagnosticRecord -as $diagnosticRecordType
             } # if
 
             if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
             {
                 $script:diagnosticRecord['Message'] = $localizedData.EnumOpeningBraceShouldBeFollowedByOnlyOneNewLine
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\EnumOpeningBraceShouldBeFollowedByOnlyOneNewLine"
                 $script:diagnosticRecord -as $diagnosticRecordType
             } # if
         } # if
@@ -924,21 +893,18 @@ function Measure-TypeDefinition
             if (Test-StatementOpeningBraceOnSameLine @testParameters)
             {
                 $script:diagnosticRecord['Message'] = $localizedData.ClassOpeningBraceNotOnSameLine
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ClassOpeningBraceNotOnSameLine"
                 $script:diagnosticRecord -as $diagnosticRecordType
             } # if
 
             if (Test-StatementOpeningBraceIsNotFollowedByNewLine @testParameters)
             {
                 $script:diagnosticRecord['Message'] = $localizedData.ClassOpeningBraceShouldBeFollowedByNewLine
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ClassOpeningBraceShouldBeFollowedByNewLine"
                 $script:diagnosticRecord -as $diagnosticRecordType
             } # if
 
             if (Test-StatementOpeningBraceIsFollowedByMoreThanOneNewLine @testParameters)
             {
                 $script:diagnosticRecord['Message'] = $localizedData.ClassOpeningBraceShouldBeFollowedByOnlyOneNewLine
-                $script:diagnosticRecord['RuleName'] = "$($script:moduleName)\ClassOpeningBraceShouldBeFollowedByOnlyOneNewLine"
                 $script:diagnosticRecord -as $diagnosticRecordType
             } # if
         } # if
