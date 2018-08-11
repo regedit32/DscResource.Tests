@@ -56,10 +56,7 @@ This branch is used by DSC Resource Kit modules for running common tests.
   - [Run tests in a Docker Windows container](#run-tests-in-a-docker-windows-container)
 - [Deploy](#deploy)
   - [Publish examples to PowerShell Gallery](#publish-examples-to-powershell-gallery)
-- [Versions](#versions)
-  - [Unreleased](#unreleased)
-  - [0.2.0.0](#0200)
-  - [0.1.0.0](#0100)
+- [Change Log](#change-log)
 
 <!-- /TOC -->
 
@@ -171,7 +168,8 @@ configuration block is provided a default configuration block is used.
 
 The DSC Resource Common Meta Tests also contains tests for [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) (PSSA) rules.
 Along with the built-in PSSA rules, custom rules are tested. Those rules are defined and maintained in this repository in
-[DscResource.AnalyzerRules](https://github.com/PowerShell/DscResource.Tests/tree/dev/DscResource.AnalyzerRules).
+[DscResource.AnalyzerRules](https://github.com/PowerShell/DscResource.Tests/tree/dev/DscResource.AnalyzerRules). These custom rules are built
+to follow the style guideline, and overriding them should be a temporary measure until the code can follow the style guideline
 
 There will be cases where built-in and/or custom PSSA rules may need to be suppressed in scripts or functions.
 You can suppress a rule by decorating a script/function or script/function parameter with .NET's
@@ -179,32 +177,49 @@ You can suppress a rule by decorating a script/function or script/function param
 
 When the *Common Tests - PS Script Analyzer on Resource Files* test fails on a PSSA rule, Meta.Tests will use `Write-Warning` to output
 Rule Name, Script Name, Line Number, and Rule Message.  When necessary, the rule name can be used to suppress the rule as needed.
-For example, the following code would cause the **Measure-ParameterBlockParameterAttribute** custom PSSA rule to fail:
+For example, the following code would cause the **PSAvoidGlobalVars** built-in PSSA rule to fail:
 
 ```powerShell
-function Get-TargetResource
+function Set-TargetResource
 {
-    Param (
-        $ParameterName1,
-
-        [parameter()]
-        $ParameterName2
+    Param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $FeatureName
     )
+
+    $windowsOptionalFeature = Dism\Enable-WindowsOptionalFeature -FeatureName $FeatureName -NoRestart $true
+
+    if ($windowsOptionalFeature.RestartNeeded -eq $true)
+    {
+        Write-Verbose -Message $script:localizedData.RestartNeeded
+        $global:DSCMachineStatus = 1
+    }
 }
 ```
 
-To suppress the **Measure-ParameterBlockParameterAttribute** in this example, this can be done by using the SuppressMessageAttribute like this:
+In this example, suppression is allowed here because $global:DSCMachineStatus must be set in order to reboot the machine.
+To suppress the **PSAvoidGlobalVars** rule for this function, this can be done by using the SuppressMessageAttribute like this:
 
 ```powershell
-function Get-TargetResource
+function Set-TargetResource
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('DscResource.AnalyzerRules\Measure-ParameterBlockParameterAttribute','')]
-    Param (
-        $ParameterName1,
-
-        [parameter()]
-        $ParameterName2
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
+    Param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $FeatureName
     )
+
+    $windowsOptionalFeature = Dism\Enable-WindowsOptionalFeature -FeatureName $FeatureName -NoRestart $true
+
+    if ($windowsOptionalFeature.RestartNeeded -eq $true)
+    {
+        Write-Verbose -Message $script:localizedData.RestartNeeded
+        $global:DSCMachineStatus = 1
+    }
 }
 ```
 
@@ -725,7 +740,7 @@ Contributors that add or change an example to be published must make sure that
 #>
 ```
 
-## Versions
+## Change Log
 
 ### Unreleased
 

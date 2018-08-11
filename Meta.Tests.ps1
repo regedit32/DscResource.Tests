@@ -430,14 +430,17 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
                     if ($null -ne $errorPssaRulesOutput)
                     {
                         Write-Warning -Message 'Error-level PSSA rule(s) did not pass.'
-                        Write-Warning -Message 'The following PSScriptAnalyzer errors need to be fixed:'
+                        $ruleCollection = $errorPssaRulesOutput | Group-Object -Property RuleName
 
-                        foreach ($errorPssaRuleOutput in $errorPssaRulesOutput)
+                        foreach ($ruleNameGroup in $ruleCollection)
                         {
-                            Write-Warning -Message "PSSA Rule Name: $($errorPssaRuleOutput.RuleName) "
-                            Write-Warning -Message "$($errorPssaRuleOutput.ScriptName) (Line $($errorPssaRuleOutput.Line)): $($errorPssaRuleOutput.Message)"
+                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed:"
+                            foreach ($rule in $ruleNameGroup.Group)
+                            {
+                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
+                            }
                         }
-
+                    
                         Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
                     }
 
@@ -450,14 +453,16 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
                     if ($null -ne $requiredPssaRulesOutput)
                     {
                         Write-Warning -Message 'Required PSSA rule(s) did not pass.'
-                        Write-Warning -Message 'The following PSScriptAnalyzer errors need to be fixed:'
+                        $ruleCollection = $requiredPssaRulesOutput | Group-Object -Property RuleName
 
-                        foreach ($requiredPssaRuleOutput in $requiredPssaRulesOutput)
+                        foreach ($ruleNameGroup in $ruleCollection)
                         {
-                            Write-Warning -Message "PSSA Rule Name: $($requiredPssaRuleOutput.RuleName) "
-                            Write-Warning -Message "$($requiredPssaRuleOutput.ScriptName) (Line $($requiredPssaRuleOutput.Line)): $($requiredPssaRuleOutput.Message)"
+                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed:"
+                            foreach ($rule in $ruleNameGroup.Group)
+                            {
+                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
+                            }
                         }
-
                         Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
                     }
 
@@ -477,12 +482,15 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
                     if ($null -ne $flaggedPssaRulesOutput)
                     {
                         Write-Warning -Message 'Flagged PSSA rule(s) did not pass.'
-                        Write-Warning -Message 'The following PSScriptAnalyzer errors need to be fixed or approved to be suppressed:'
+                        $ruleCollection = $flaggedPssaRulesOutput | Group-Object -Property RuleName
 
-                        foreach ($flaggedPssaRuleOutput in $flaggedPssaRulesOutput)
+                        foreach ($ruleNameGroup in $ruleCollection)
                         {
-                            Write-Warning -Message "PSSA Rule Name: $($flaggedPssaRuleOutput.RuleName) "
-                            Write-Warning -Message "$($flaggedPssaRuleOutput.ScriptName) (Line $($flaggedPssaRuleOutput.Line)): $($flaggedPssaRuleOutput.Message)"
+                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed or approved to be suppressed:"
+                            foreach ($rule in $ruleNameGroup.Group)
+                            {
+                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
+                            }
                         }
 
                         Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
@@ -506,12 +514,15 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
                     if ($null -ne $newErrorPssaRulesOutput)
                     {
                         Write-Warning -Message 'Recently-added, error-level PSSA rule(s) did not pass.'
-                        Write-Warning -Message 'The following PSScriptAnalyzer errors need to be fixed or approved to be suppressed:'
+                        $ruleCollection = $newErrorPssaRulesOutput | Group-Object -Property RuleName
 
-                        foreach ($newErrorPssaRuleOutput in $newErrorPssaRulesOutput)
+                        foreach ($ruleNameGroup in $ruleCollection)
                         {
-                            Write-Warning -Message "PSSA Rule Name: $($newErrorPssaRuleOutput.RuleName) "
-                            Write-Warning -Message "$($newErrorPssaRuleOutput.ScriptName) (Line $($newErrorPssaRuleOutput.Line)): $($newErrorPssaRuleOutput.Message)"
+                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed or approved to be suppressed:"
+                            foreach ($rule in $ruleNameGroup.Group)
+                            {
+                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
+                            }
                         }
 
                         Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
@@ -555,12 +566,15 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
                     if ($null -ne $customPssaRulesOutput)
                     {
                         Write-Warning -Message 'Custom DSC Resource Kit PSSA rule(s) did not pass.'
-                        Write-Warning -Message 'The following PSScriptAnalyzer errors need to be fixed:'
+                        $ruleCollection = $customPssaRulesOutput | Group-Object -Property RuleName
 
-                        foreach ($customPssaRuleOutput in $customPssaRulesOutput)
+                        foreach ($ruleNameGroup in $ruleCollection)
                         {
-                            Write-Warning -Message "Custom PSSA Rule Name: $($customPssaRuleOutput.RuleName) "
-                            Write-Warning -Message "$($customPssaRuleOutput.ScriptName) (Line $($customPssaRuleOutput.Line)): $($customPssaRuleOutput.Message)"
+                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed or approved to be suppressed:"
+                            foreach ($rule in $ruleNameGroup.Group)
+                            {
+                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
+                            }
                         }
 
                         Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
