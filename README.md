@@ -182,7 +182,7 @@ For example, the following code would cause the **PSAvoidGlobalVars** built-in P
 ```powerShell
 function Set-TargetResource
 {
-    Param
+    param
     (
         [Parameter(Mandatory = $true)]
         [String]
@@ -206,7 +206,7 @@ To suppress the **PSAvoidGlobalVars** rule for this function, this can be done b
 function Set-TargetResource
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '')]
-    Param
+    param
     (
         [Parameter(Mandatory = $true)]
         [String]

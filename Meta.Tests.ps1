@@ -429,19 +429,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                     if ($null -ne $errorPssaRulesOutput)
                     {
-                        Write-Warning -Message 'Error-level PSSA rule(s) did not pass.'
-                        $ruleCollection = $errorPssaRulesOutput | Group-Object -Property RuleName
-
-                        foreach ($ruleNameGroup in $ruleCollection)
-                        {
-                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed:"
-                            foreach ($rule in $ruleNameGroup.Group)
-                            {
-                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
-                            }
-                        }
-                    
-                        Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
+                        Write-PsScriptAnalyzerWarning -PssaRuleOutput $errorPssaRulesOutput -RuleType 'Error-Level'
                     }
 
                     $errorPssaRulesOutput | Should -Be $null
@@ -452,18 +440,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                     if ($null -ne $requiredPssaRulesOutput)
                     {
-                        Write-Warning -Message 'Required PSSA rule(s) did not pass.'
-                        $ruleCollection = $requiredPssaRulesOutput | Group-Object -Property RuleName
-
-                        foreach ($ruleNameGroup in $ruleCollection)
-                        {
-                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed:"
-                            foreach ($rule in $ruleNameGroup.Group)
-                            {
-                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
-                            }
-                        }
-                        Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
+                        Write-PsScriptAnalyzerWarning -PssaRuleOutput $requiredPssaRulesOutput -RuleType 'Required'
                     }
 
                     if ($null -ne $requiredPssaRulesOutput -and (Get-OptInStatus -OptIns $optIns -Name 'Common Tests - Required Script Analyzer Rules'))
@@ -481,19 +458,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                     if ($null -ne $flaggedPssaRulesOutput)
                     {
-                        Write-Warning -Message 'Flagged PSSA rule(s) did not pass.'
-                        $ruleCollection = $flaggedPssaRulesOutput | Group-Object -Property RuleName
-
-                        foreach ($ruleNameGroup in $ruleCollection)
-                        {
-                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed or approved to be suppressed:"
-                            foreach ($rule in $ruleNameGroup.Group)
-                            {
-                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
-                            }
-                        }
-
-                        Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
+                        Write-PsScriptAnalyzerWarning -PssaRuleOutput $flaggedPssaRulesOutput -RuleType 'Flagged'
                     }
 
                     if ($null -ne $flaggedPssaRulesOutput -and (Get-OptInStatus -OptIns $optIns -Name 'Common Tests - Flagged Script Analyzer Rules'))
@@ -513,19 +478,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                     if ($null -ne $newErrorPssaRulesOutput)
                     {
-                        Write-Warning -Message 'Recently-added, error-level PSSA rule(s) did not pass.'
-                        $ruleCollection = $newErrorPssaRulesOutput | Group-Object -Property RuleName
-
-                        foreach ($ruleNameGroup in $ruleCollection)
-                        {
-                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed or approved to be suppressed:"
-                            foreach ($rule in $ruleNameGroup.Group)
-                            {
-                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
-                            }
-                        }
-
-                        Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
+                        Write-PsScriptAnalyzerWarning -PssaRuleOutput $newErrorPssaRulesOutput -RuleType 'Recently-added'
                     }
 
                     if ($null -ne $newErrorPssaRulesOutput -and (Get-OptInStatus -OptIns $optIns -Name 'Common Tests - New Error-Level Script Analyzer Rules'))
@@ -565,19 +518,7 @@ Describe 'Common Tests - PS Script Analyzer on Resource Files' {
 
                     if ($null -ne $customPssaRulesOutput)
                     {
-                        Write-Warning -Message 'Custom DSC Resource Kit PSSA rule(s) did not pass.'
-                        $ruleCollection = $customPssaRulesOutput | Group-Object -Property RuleName
-
-                        foreach ($ruleNameGroup in $ruleCollection)
-                        {
-                            Write-Warning -Message "The following PSScriptAnalyzer rule '$($ruleNameGroup.Name)' errors need to be fixed or approved to be suppressed:"
-                            foreach ($rule in $ruleNameGroup.Group)
-                            {
-                                Write-Warning -Message "$($rule.ScriptName) (Line $($rule.Line)): $($rule.Message)"
-                            }
-                        }
-
-                        Write-Warning -Message  'For instructions on how to run PSScriptAnalyzer on your own machine, please go to https://github.com/powershell/PSScriptAnalyzer'
+                        Write-PsScriptAnalyzerWarning -PssaRuleOutput $customPssaRulesOutput -RuleType 'Custom DSC Resource Kit'
                     }
 
                     if ($null -ne $customPssaRulesOutput -and (Get-OptInStatus -OptIns $optIns -Name 'Common Tests - Custom Script Analyzer Rules'))
